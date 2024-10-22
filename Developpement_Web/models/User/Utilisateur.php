@@ -46,6 +46,10 @@ class Utilisateur {
         return $this->registration->registerUser($id_utilisateur, $id_parrain, $id_compte, $code_parrainage, $nom_u, $email, $tel, $mot_de_passe, $status_compte);
     }
 
+<<<<<<< HEAD:Developpement_Web/models/User/Utilisateur.php
+=======
+
+>>>>>>> f882413a5d13b0275b51d8659fcd9aa021c97569:Developpement_Web/models/Utilisateurs.php
      // Méthode de connexion
     public function login($email, $mot_de_passe) {
         return $this->login->loginUser($email, $mot_de_passe);
