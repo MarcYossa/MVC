@@ -1,5 +1,9 @@
 <?php
 
+require_once 'Registration.php'; // Appel de la claase Registration.php
+require_once 'Login.php'; // Appel de la classe Login.php
+require_once 'Session.php'; // Appel de la classe Session.php
+
 class Utilisateur {
     // Propriétés de la classe qui correspondent aux colonnes de la table Utilisateurs
     private $id_utilisateur;
@@ -13,6 +17,9 @@ class Utilisateur {
     private $date_inscription;
     private $status_compte;
     private $pdo; // Instance de PDO pour la connexion à la base de données
+    // Définition de variables pour pouvoir instancier les objets registration et login
+    private $registration; 
+    private $login;
 
     // Constructeur de la classe, prend un objet PDO en paramètre pour établir la connexion à la base de données
     public function __construct($pdo, $id_utilisateur, $id_parrain, $id_compte, $code_parrainage, $nom_u, $email, $tel, $point_fidelite = 0, $date_inscription = null, $status_compte) {
@@ -27,9 +34,31 @@ class Utilisateur {
         $this->point_fidelite = $point_fidelite;
         $this->date_inscription = $date_inscription;
         $this->status_compte = $status_compte;
+        // Instanciation des objets Registration et login
+        $this->registration = new Registration($pdo);
+        $this->login = new Login($pdo);
     }
 
     // Méthode pour gérer un utilisateur
+    
+// Méthode d'inscription de l'utilisateur
+     public function register($id_utilisateur, $id_parrain, $id_compte, $code_parrainage, $nom_u, $email, $tel, $mot_de_passe, $status_compte) {
+        return $this->registration->registerUser($id_utilisateur, $id_parrain, $id_compte, $code_parrainage, $nom_u, $email, $tel, $mot_de_passe, $status_compte);
+    }
 
+     // Méthode de connexion
+    public function login($email, $mot_de_passe) {
+        return $this->login->loginUser($email, $mot_de_passe);
+    }
+    
+    // Méthode pour vérifier si l'utilisateur est connecté
+    public function isLoggedIn() {
+        return Session::isLoggedInUser();
+    }
+
+    // Méthode pour se déconnecter
+    public function logout() {
+        Session::logoutUser();
+    }
 }
 ?>
