@@ -10,23 +10,23 @@ class Creation {
         $this->pdo = Database::getConnection();
     }
 
-    public function ajouterArticle($id_plat, $nom_m, $description_m, $prix, $disponible) {
-        // Vérifier que l'ID_PLAT a exactement 8 caractères et commence par "PLT" ou "BOI"
-        if (!preg_match('/^(PLT|BOI)\d{5}$/', $id_plat)) {
-            throw new Exception("L'ID_PLAT doit commencer par 'PLT' ou 'BOI', suivi de 5 chiffres, pour un total de 8 caractères.");
+    public function ajouterArticle($id_article, $titre, $description, $prix, $disponible) {
+        // Vérifier que l'ID_Article a exactement 10 caractères et commence par "PLT" ou "BOI"
+        if (!preg_match('/^(PLT|BOI)\d{7}$/', $id_article)) {
+            throw new Exception("L'ID_Article doit commencer par 'PLT' ou 'BOI', suivi de 7 chiffres, pour un total de 10 caractères.");
         }
 
-        // Vérifier que l'ID_plat est unique
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Article WHERE ID_plat = ?");
-        $stmt->execute([$id_plat]);
+        // Vérifier que l'ID_Article est unique
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM articles WHERE ID_Article = ?");
+        $stmt->execute([$id_article]);
         
         if ($stmt->fetchColumn() > 0) {
             throw new Exception("Un article avec cet ID existe déjà.");
         }
 
         // Insertion dans la base de données
-        $stmt = $this->pdo->prepare("INSERT INTO Article (ID_plat, nom_m, description_m, Prix, Disponible) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$id_plat, $nom_m, $description_m, $prix, $disponible]);
+        $stmt = $this->pdo->prepare("INSERT INTO article (ID_Article, titre, description, prix, Disponible) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$id_article, $titre, $description, $prix, $disponible]);
 
         return true; // Retourner vrai si l'ajout a réussi
     }

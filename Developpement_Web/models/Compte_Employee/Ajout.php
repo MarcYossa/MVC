@@ -54,5 +54,15 @@ class Ajout{
             throw new Exception("Erreur lors de l'ajout de l'employé : " . $e->getMessage());
         }
     }
+
+    // Lire tous les comptes employés
+    public function lireTousLesComptesEmployes() {
+        try {
+            $stmt = $this->pdo->query("SELECT ID_compte, email, role FROM Compte WHERE role = 'employé' ORDER BY email");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erreur lors de la lecture des comptes employés : " . $e->getMessage());
+        }
+    }
 }
 ?>

@@ -1,51 +1,54 @@
 <?php
-
-require_once '../models/Jeu.php'; // Assurez-vous que le chemin est correct
-require_once '../config/database.php'; // Pour la connexion PDO
+require_once '../models/Jeu.php';
 
 class JeuController {
     private $jeuModel;
 
     public function __construct() {
-        $pdo = Database::getConnection(); // Obtenir la connexion à la base de données
-        $this->jeuModel = new Jeu($pdo);
+        $this->jeuModel = new Jeu();
     }
 
-    // Méthode pour afficher le formulaire d'ajout d'un jeu
-    public function afficherFormulaireAjout() {
-        // Ici, vous pouvez inclure un fichier de vue ou afficher la logique HTML pour le formulaire
-        echo '<form method="POST" action="JeuController.php?action=ajouter">
-                <label for="image">Image URL:</label>
-                <input type="text" name="image" required>
-                <input type="submit" value="Ajouter">
-              </form>';
-    }
-
-    // Méthode pour ajouter un jeu
-    public function ajouterJeu() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $image = $_POST['image'];
-
-            try {
-                $idJeu = $this->jeuModel->ajouterJeu($image);
-                echo "Jeu ajouté avec succès ! ID du jeu : $idJeu";
-            } catch (Exception $e) {
-                echo "Erreur lors de l'ajout du jeu : " . $e->getMessage();
-            }
-        } else {
-            echo "Méthode non autorisée.";
+    // Méthode pour afficher tous les jeux
+    public function getAllJeux() {
+        try {
+            $jeux = $this->jeuModel->readAll();
+            header('Content-Type: application/json');
+            echo json_encode($jeux);
+        } catch (Exception $e) {
+            header("HTTP/1.1 500 Internal Server Error");
+            echo json_encode(["error" => $e->getMessage()]);
         }
     }
-}
 
-// Gestion des actions
-$action = isset($_GET['action']) ? $_GET['action'] : '';
-
-$jeuController = new JeuController();
-
-if ($action === 'ajouter') {
-    $jeuController->ajouterJeu();
-} else {
-    $jeuController->afficherFormulaireAjout();
+    // Méthode pour ajouter un nouveau jeu
+    public function addJeu() {
+        // Vérifiez si la clé 'REQUEST_METHOD' existe
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $input = json_decode(file_get_contents('php://input'), true);
+    
+            // Validation des entrées
+            if (isset($input['titre']) && isset($input['description']) && isset($input['image'])) {
+                $titre = $input['titre'];
+                $description = $input['description'];
+                $image = $input['image'];
+    
+                try {
+                    $idJeu = $this->jeuModel->ajouterJeu($titre, $description, $image);
+                    header('Content-Type: application/json');
+                    header("HTTP/1.1 201 Created");
+                    echo json_encode(["message" => "Jeu ajouté avec succès.", "Id_jeu" => $idJeu]);
+                } catch (Exception $e) {
+                    header("HTTP/1.1 400 Bad Request");
+                    echo json_encode(["error" => $e->getMessage()]);
+                }
+            } else {
+                header("HTTP/1.1 400 Bad Request");
+                echo json_encode(["error" => "Données manquantes."]);
+            }
+        } else {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode(["error" => "Méthode non autorisée."]);
+        }
+    }
 }
 ?>
